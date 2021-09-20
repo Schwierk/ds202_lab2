@@ -1,0 +1,125 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r database}
+library(classdata)
+data(choco)
+str(choco)
+```
+
+## Question 1
+
+How are the cocoa percent distributed? Create both a histogram and a boxplot and describe them. Don’t forget to mention outliers, if there are any.
+
+Answer: The outlines that I see are the percentages closer to 100 in the boxplot. There are a couple closer to 40 percent as well. Without calculating exactly what the quartiles are.
+
+```{r graph}
+library(classdata)
+data(choco)
+hist(choco$CocoaPercent)
+boxplot(choco$CocoaPercent, outlier.tagging = TRUE)
+```
+
+## Question 2
+
+How does the number of ratings depend on the country of bean origin? Draw a bar chart of the number of ratings by bean origin. [Hint: If your graph is too dense and the labels are not legible, show fewer bean origins.]
+
+```{r barchart}
+library(classdata)
+data(choco)
+abc <- aggregate(x=choco$Rating, by=list(choco$CountryBeanOrigin), FUN=sum)
+abc <- abc[1:10,]
+abc1 <- abc$Group.1
+abc2 <- abc$x
+barplot(abc2, names.arg=abc1, xlab="Origin", ylab = "Sum of Rating", cex.names = 0.5)
+```
+
+## Question 3
+Do ratings depend on the cacao percentage of a chocolate bar? Create both numerical and graphical summaries, and explain. [Hint: Think about why the scatterplot is not a very good choice for visualization here.]
+
+```{r}
+x <- choco$Rating
+y <- choco$CocoaPercent
+data <- c(choco$Rating, choco$CocoaPercent)
+cor.test(x, y)
+plot(x,y)
+```
+
+Answer: One of the things that I have noticed when doing the data analysis between the two variables is that the p-value = 1.722e-13, which means that it rejects nulls hypothisis. As well as the confidence interval is small as well as the sameple correlation. This as well as the graph show above there is little to no correlation between one or the other. 
+
+## Question 4
+How do different bean origins compare in terms of the flavor of chocolates? Are beans from some places better than the other? Create both numerical and graphical summaries, and explain.
+```{r}
+library(classdata)
+library(tidyverse)
+
+flavor <- table(choco$Characteristics1)
+length(flavor)
+summary(as.numeric(flavor))
+boxplot(flavor)
+
+flavor_filtered <- flavor[flavor > 50]
+choco_filtered <- filter(choco, Characteristics1 %in% names(flavor_filtered))
+
+country_filtered <- table(choco$CountryBeanOrigin) %>% 
+  sort(decreasing = TRUE) %>%
+  head(10)
+
+```
+
+When looking at the Question 4 helping question and looking at the 'ggplot2' it is easier to tell what the data is trying to get across by characteristics. By looking at this plot you can tell that some chocolate has natural characteristics that are better than other. For instance, if you wanted to get a creamy chocolate you should get it from Brazil. Since, each country is going to have a different combination of flavors to make different chocolate.
+ 
+ 
+```{r}
+tapply(choco$Rating, choco$CountryBeanOrigin, summary) %>%
+  head(5)
+```
+
+When looking at the top 5 of the summaries of each chocolates origin and what they get rated you can tell that it does matter. Each ones median, mean, and other statistics where different. So yes, that does mean that in some places the chocolate is going to be better than other origins. Whether it is different by the average score, so that would be the average quality or if the best chocolate is in that country with the max. 
+
+## Question 5
+If you work on this lab by yourself, brainstorm two analyses you would like to perform. If you work with a teammate, brainstorm at least three analyses with your teammate. Describe in plain language what comparisons are you making. Create suitable numerical and graphical summaries for your analyses. Describe the results.
+
+Potential questions I would explore
+
+a. Which countries have the highest Rating Average
+
+b. Compare the Data from Australia to Brazil
+
+# Questoin a
+
+```{r}
+data(choco)
+Tanza <- aggregate(x=choco$Rating, by=list(choco$CountryBeanOrigin), FUN=mean)
+Tanza1 <- Tanza[order(Tanza$x),]
+Tanza2 <- tail(Tanza1,5)
+print(Tanza2)
+
+```
+
+
+Comment: What I found out is the top 5 countries with the best average rating is Tobago, Soa Tome & Principe, Solom Island, Congo, and Thailand. The reason why this data is important is because if you are a chocolate maker you are going to want to get your chocolate from these countries for the best taste.
+
+```{r}
+data(choco)
+Tanza <- aggregate(x=choco$Rating, by=list(choco$CountryBeanOrigin), FUN=mean)
+Tanza1 <- Tanza[order(Tanza$x),]
+Tanza2 <- tail(Tanza1,5)
+
+x1 <- Tanza2$Group.1
+y1 <- Tanza2$x
+
+barplot(y1, names.arg=x1, xlab='Origin', ylab = "Mean of Raing", cex.names = 0.5)
+
+```
+
+# Question b
+
+```{r}
+tapply(choco$Rating, choco$CountryBeanOrigin, summary) %>%
+  head(5)
+```
+
+When looking at the rating between Australia and Brazil you can see that the mean is higher for Brazil than Austrial. As well as the Max as different. All in all I would not by chocoa from Austrial and stick with Brazil
